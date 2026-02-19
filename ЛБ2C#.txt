@@ -1,0 +1,55 @@
+using System;
+using System.Globalization; 
+
+namespace ZooApp
+{
+  
+    class Zoo
+    {
+        public string Animal { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public string Gender { get; set; }
+
+        public Zoo(string animal, string name, int age, string gender)
+        {
+            Animal = animal;
+            Name = name;
+            Age = age;
+            Gender = gender;
+        }
+    }
+    class WaterCreatures : Zoo
+    {
+        public string AnimalType { get; set; }
+        public string AquariumWash { get; set; }
+
+      
+        public WaterCreatures(string animal, string name, int age, string gender, string animalType, string aquariumWash)
+            : base(animal, name, age, gender)
+        {
+            AnimalType = animalType;
+            AquariumWash = aquariumWash;
+        }
+
+        public DateTime AquariumWashDate()
+        {
+            DateTime a = DateTime.ParseExact(AquariumWash, "d/MM/yyyy", CultureInfo.InvariantCulture);   
+            DateTime b = a.AddDays(7);
+            return b.Date;
+        }
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Zoo capibara = new Zoo("capibara", "капибара", 3, "male");
+            WaterCreatures crab = new WaterCreatures("crab", "крабик", 2, "male", "crustacenes", "6/02/2026");
+            Console.WriteLine(capibara.Age);
+            Console.WriteLine(crab.AnimalType);
+            Console.WriteLine(crab.AquariumWashDate());
+
+          
+        }
+    }
+}
