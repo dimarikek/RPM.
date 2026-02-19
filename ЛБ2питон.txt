@@ -1,0 +1,27 @@
+import datetime
+from datetime import datetime
+from datetime import timedelta
+class Zoo:
+    def __init__(self, animal, name, age, gender):
+        self.animal = animal
+        self.name = name
+        self.age = age
+        self.gender = gender
+
+class water_creatures(Zoo):
+    def __init__(self, animal, name, age, gender, animal_type, aquarium_wash):
+        super().__init__(animal, name, age, gender)
+        self.animal_type = animal_type
+        self.aquarium_wash = aquarium_wash
+
+    def aquarium_wash_date(self):
+        a = datetime.strptime(self.aquarium_wash, "%d/%m/%Y")
+        b = a + timedelta(days=7)
+        next_aquarium_wash = b.date()
+        return next_aquarium_wash
+
+capibara = Zoo("capibara", "капибара", 3, "male")
+crab = water_creatures("crab", "крабик", 2, "male", "crustacenes", "6/02/2026")
+print(capibara.age)
+print(crab.animal_type)
+print(crab.aquarium_wash_date())
