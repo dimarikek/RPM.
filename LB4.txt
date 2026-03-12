@@ -1,0 +1,51 @@
+using System;
+using System.Net;      
+using System.IO;       
+
+namespace WebClientLab
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+           
+            string fileUrl = "https://raw.githubusercontent.com/datasets/covid-19/master/data/countries-aggregated.csv";
+
+        
+            string localPath = "open_data.csv";
+
+            Console.WriteLine("start file loading...");
+
+            
+            using (WebClient client = new WebClient())
+            {
+                try
+                {
+               
+                    client.DownloadFile(fileUrl, localPath);
+
+                    Console.WriteLine($"Файл успешно загружен: {Path.GetFullPath(localPath)}");
+                    Console.WriteLine(new string('-', 30));
+                    Console.WriteLine("Содержимое файла в консоли:");
+                    Console.WriteLine(new string('-', 30));
+
+               
+                    string content = File.ReadAllText(localPath);
+                    Console.WriteLine(content);
+                }
+                catch (WebException ex)
+                {
+                   
+                    Console.WriteLine($"network error: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"general error: {ex.Message}");
+                }
+            }
+
+            Console.WriteLine("\nPress any key to exit...");
+            Console.ReadKey();
+        }
+    }
+}
