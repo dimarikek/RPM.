@@ -1,0 +1,186 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using ClosedXML.Excel;
+
+namespace ExcelManager
+{
+    class Program
+    {
+       
+        static string defaultExtension = ".xlsx";
+
+        static void Main(string[] args)
+        {
+            
+            while (true)
+            {
+              
+                
+               
+                Console.WriteLine("1. Create file and write data");
+                Console.WriteLine("2. Read data from file (select sheet)");
+                Console.WriteLine("3. Exit");
+                Console.Write("Select action: ");
+
+                string choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        CreateExcelFile();
+                        break;
+                    case "2":
+                        ReadExcelFile();
+                        break;
+                    case "3":
+                        Console.WriteLine("Program terminated.");
+                        return; 
+                    default:
+                        Console.WriteLine("Invalid input. Try again.");
+                        break;
+                }
+            }
+        }
+
+ 
+        static string EnsureExtension(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                return "data" + defaultExtension;
+            }
+
+
+            if (!fileName.ToLower().EndsWith(defaultExtension))
+            {
+                fileName += defaultExtension;
+            }
+
+            return fileName;
+        }
+
+
+        static void CreateExcelFile()
+        {
+            try
+            {
+                Console.Write("Enter file name (without extension): ");
+                string userInput = Console.ReadLine();
+                string fileName = EnsureExtension(userInput);
+
+                Console.WriteLine($"Creating file '{fileName}'...");
+
+                using (var workbook = new XLWorkbook())
+                {
+                 
+                    var ws1 = workbook.Worksheets.Add("Employees");
+                    ws1.Cell(1, 1).Value = "ID";
+                    ws1.Cell(1, 2).Value = "Name";
+                    ws1.Cell(1, 3).Value = "Position";
+
+                    ws1.Cell(2, 1).Value = 1;
+                    ws1.Cell(2, 2).Value = "Elisey";
+                    ws1.Cell(2, 3).Value = "Student";
+
+                    ws1.Cell(3, 1).Value = 2;
+                    ws1.Cell(3, 2).Value = "Konstantin";
+                    ws1.Cell(3, 3).Value = "Teacher";
+
+               
+                    var ws2 = workbook.Worksheets.Add("Reports");
+                    ws2.Cell(1, 1).Value = "Month";
+                    ws2.Cell(1, 2).Value = "Profit";
+                    ws2.Cell(2, 1).Value = "January";
+                    ws2.Cell(2, 2).Value = 100000;
+                    ws2.Cell(3, 1).Value = "February";
+                    ws2.Cell(3, 2).Value = 120000;
+
+               
+                    workbook.SaveAs(fileName);
+                }
+
+                Console.WriteLine($"[SUCCESS] File '{fileName}' created and filled successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Creating file: {ex.Message}");
+            }
+        }
+
+
+        static void ReadExcelFile()
+        {
+            try
+            {
+                Console.Write("Enter file name to read (without extension): ");
+                string userInput = Console.ReadLine();
+                string fileName = EnsureExtension(userInput);
+
+             
+                if (!File.Exists(fileName))
+                {
+                    Console.WriteLine($"[ERROR] File '{fileName}' not found! Create it first (option 1).");
+                    return;
+                }
+
+                using (var workbook = new XLWorkbook(fileName))
+                {
+                    var sheets = workbook.Worksheets;
+
+             
+                    if (sheets.Count == 0)
+                    {
+                        Console.WriteLine("[ERROR] No sheets in file.");
+                        return;
+                    }
+
+                    Console.WriteLine("\nAvailable sheets in file:");
+                    List<string> sheetNames = new List<string>();
+
+             
+                    int index = 1;
+                    foreach (var sheet in sheets)
+                    {
+                        Console.WriteLine($"{index}. {sheet.Name}");
+                        sheetNames.Add(sheet.Name);
+                        index++;
+                    }
+
+                  
+                    Console.Write($"\nEnter sheet number to read (1-{sheetNames.Count}): ");
+                    string input = Console.ReadLine();
+
+                    if (int.TryParse(input, out int selectedNumber) &&
+                        selectedNumber > 0 &&
+                        selectedNumber <= sheetNames.Count)
+                    {
+                        string selectedSheetName = sheetNames[selectedNumber - 1];
+                        var worksheet = workbook.Worksheet(selectedSheetName);
+
+                        Console.WriteLine($"\n Data from sheet '{selectedSheetName}' ");
+
+                     
+                        foreach (var row in worksheet.RowsUsed())
+                        {
+                            string rowText = "";
+                            foreach (var cell in row.CellsUsed())
+                            {
+                                rowText += cell.Value.ToString() + " | ";
+                            }
+                            Console.WriteLine(rowText);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("[ERROR] Invalid sheet number.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Reading file: {ex.Message}");
+            }
+        }
+    }
+}
