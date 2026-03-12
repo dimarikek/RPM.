@@ -1,0 +1,60 @@
+using System;
+using System.Diagnostics;
+
+class Program
+{
+    static void Main()
+    {
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("1. vse procecci");
+            Console.WriteLine("2. potoki visual studio");
+            Console.WriteLine("3. zapuck paint, calculator");
+            Console.WriteLine("0. exit");
+            Console.Write("\nvubor: ");
+
+            string choice = Console.ReadLine();
+            Console.WriteLine();
+
+            if (choice == "1")
+            {
+                Console.WriteLine("vse procecci:");
+                foreach (Process process in Process.GetProcesses())
+                {
+                    Console.WriteLine($"id: {process.Id} name: {process.ProcessName}");
+                }
+            }
+            else if (choice == "2")
+            {
+                Console.WriteLine("potoki visual studio:");
+                Process[] vsProcs = Process.GetProcessesByName("devenv");
+                if (vsProcs.Length > 0)
+                {
+                    ProcessThreadCollection processThreads = vsProcs[0].Threads;
+                    foreach (ProcessThread thread in processThreads)
+                    {
+                        Console.WriteLine($"threadid: {thread.Id}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("vs process not find");
+                }
+            }
+            else if (choice == "3")
+            {
+                Console.WriteLine("zapuck paint, calculator ");
+                Process.Start("mspaint.exe");
+                Process.Start("calc.exe");
+            }
+            else if (choice == "0")
+            {
+                break;
+            }
+
+            Console.WriteLine("\nnazhmite lubuyu klavishu...");
+            Console.ReadKey();
+        }
+    }
+}
