@@ -1,0 +1,124 @@
+using System;
+using System.IO;
+using System.Threading;
+using ClosedXML.Excel;
+
+namespace ExcelThreadsLab
+{
+    class Program
+    {
+        static string filePath = "data.xlsx";
+
+        static void Main(string[] args)
+        {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine($"File {filePath} not found.");
+                return;
+            }
+
+            Console.WriteLine("Starting Excel Reading\n");
+
+            Thread thread1 = new Thread(ReadSheet1);
+            thread1.Name = "Thread Read Sheet1";
+
+            Thread thread2 = new Thread(ReadSheet2);
+            thread2.Name = "Thread Read Sheet2";
+
+            thread1.Start();
+            thread2.Start();
+
+            PrintThreadStatus(thread1);
+            PrintThreadStatus(thread2);
+
+            thread1.Join();
+            thread2.Join();
+
+            Console.WriteLine("\n All threads have completed ");
+            Console.WriteLine($"Status of Thread 1 after completion: {thread1.ThreadState}");
+            Console.WriteLine($"Status of Thread 2 after completion: {thread2.ThreadState}");
+
+            Console.ReadKey();
+        }
+
+        static void ReadSheet1()
+        {
+            Console.WriteLine($"[{Thread.CurrentThread.Name}] Work started. Status: {Thread.CurrentThread.ThreadState}");
+
+            try
+            {
+                using (var workbook = new XLWorkbook(filePath))
+                {
+                    var worksheet = workbook.Worksheet("Sheet1");
+                    if (worksheet == null)
+                    {
+                        Console.WriteLine($"[{Thread.CurrentThread.Name}] Sheet 'Sheet1' not found!");
+                        return;
+                    }
+
+                    Console.WriteLine($"[{Thread.CurrentThread.Name}] Reading data from 'Sheet1'...");
+
+                    int rowCount = Math.Min(worksheet.LastRowUsed()?.RowNumber() ?? 0, 10);
+
+                    for (int row = 1; row <= rowCount; row++)
+                    {
+                        string cellValue = worksheet.Cell(row, 1).GetValue<string>();
+                        Console.WriteLine($"[{Thread.CurrentThread.Name}] Row {row}: {cellValue}");
+                        Thread.Sleep(100);
+                    }
+                }
+                Console.WriteLine($"[{Thread.CurrentThread.Name}] Reading completed.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[{Thread.CurrentThread.Name}] Error: {ex.Message}");
+            }
+        }
+
+        static void ReadSheet2()
+        {
+            Console.WriteLine($"[{Thread.CurrentThread.Name}] Work started. Status: {Thread.CurrentThread.ThreadState}");
+
+            Console.WriteLine($"[{Thread.CurrentThread.Name}] Applying 2-second delay before reading");
+            Thread.Sleep(2000);
+
+            try
+            {
+                using (var workbook = new XLWorkbook(filePath))
+                {
+                    var worksheet = workbook.Worksheet("Sheet2");
+                    if (worksheet == null)
+                    {
+                        Console.WriteLine($"[{Thread.CurrentThread.Name}] Sheet 'Sheet2' not found!");
+                        return;
+                    }
+
+                    Console.WriteLine($"[{Thread.CurrentThread.Name}] Reading data from 'Sheet2'...");
+
+                    int rowCount = Math.Min(worksheet.LastRowUsed()?.RowNumber() ?? 0, 10);
+
+                    for (int row = 1; row <= rowCount; row++)
+                    {
+                        string cellValue = worksheet.Cell(row, 1).GetValue<string>();
+                        Console.WriteLine($"[{Thread.CurrentThread.Name}] Row {row}: {cellValue}");
+                        Thread.Sleep(100);
+                    }
+                }
+                Console.WriteLine($"[{Thread.CurrentThread.Name}] Reading completed.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[{Thread.CurrentThread.Name}] Error: {ex.Message}");
+            }
+        }
+
+        static void PrintThreadStatus(Thread t)
+        {
+            Console.WriteLine($"Thread '{t.Name}':");
+            Console.WriteLine($"  - IsAlive: {t.IsAlive}");
+            Console.WriteLine($"  - ThreadState: {t.ThreadState}");
+            Console.WriteLine($"  - Priority: {t.Priority}");
+            Console.WriteLine();
+        }
+    }
+}
